@@ -1,0 +1,123 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+
+// ACCOUNTS
+model User {
+  id String  @id @default(uuid())
+  email String @unique
+  firstName String
+  lastName String 
+  password String
+  avatar String
+  
+  budget Budget?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime?  @updatedAt
+  verified Boolean @default(false)
+  
+}
+
+
+//Budget
+model Budget{
+  id String  @id @default(uuid())
+
+  monthlyIncome Int
+  annualRent Int
+  gender String
+  maritalStatus String
+  modeOfTransport String
+  defaultCurrency String
+
+  category Category []
+  income Income[]
+  expense Expense[]
+
+  userId String @unique
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime?  @updatedAt
+}
+
+
+model Category{
+  id String  @id @default(uuid())
+
+  title String
+  icon String
+  desc String
+  price Int
+  percent Int
+  expense Expense[]
+
+  budgetId String
+  budget Budget @relation(fields: [budgetId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime?  @updatedAt
+}
+
+model Expense{
+  id String  @id @default(uuid())
+  amount Int
+  balance Int
+
+  categoryId String
+  category Category @relation(fields: [categoryId], references: [id])
+
+  budgetId String
+  budget Budget @relation(fields: [budgetId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime?  @updatedAt
+}
+
+
+model Income{
+  id String  @id @default(uuid())
+  amount Int
+  balance Int
+  title String
+
+  budgetId String
+  budget Budget @relation(fields: [budgetId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime?  @updatedAt
+  }
+// enum Gender{
+//   male
+//   female
+// }
+
+// enum Status{
+//   single
+//   married
+//   divorce
+// }
+
+// enum Mode{
+//   privateCar
+//   publicTransport
+// }
+
+
+
+
+
+
+
+
