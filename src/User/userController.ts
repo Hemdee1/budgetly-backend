@@ -7,19 +7,12 @@ import verifyEmailTemplate from "../utils/templates/verifyEmail";
 import sendMail from "../utils/emailSender";
 import { cloudinaryUploadImage } from "../utils/imageUploader";
 import resetPasswordEmailTemplate from "../utils/templates/resetPassword";
-import sendEmailUsingSMTPExpress from "../utils/sendEmail";
-import sendEmailUsingNodemailer from "../utils/sendEmailNodemailer";
+import { FRONTEND_URL } from "../app";
+import { render } from "@react-email/render";
+import EmailReminder from "../../emails/email-reminder";
+import React from "react";
 
 const prisma = new PrismaClient();
-const url =
-  process.env.NODE_ENV === "production"
-    ? "https://budgetease-azure.vercel.app"
-    : "http://localhost:3000";
-
-// const url =
-//   process.env.NODE_ENV === "production"
-//     ? "https://mute-pies-flimsy-agreement-production.pipeops.app"
-//     : "http://localhost:3000";
 
 const signUp: RequestHandler<unknown, unknown, signUpUser, unknown> = async (
   req,
@@ -53,25 +46,22 @@ const signUp: RequestHandler<unknown, unknown, signUpUser, unknown> = async (
       data: {
         email,
         firstName,
-
         lastName,
-
         password: hashedPassword,
         avatar: "",
       },
     });
 
     const token = createToken(user.id);
-    const link = `${url}/create/verify-email?token=${token}`;
+    const link = `${FRONTEND_URL}/create/verify-email?token=${token}`;
+
     const data = {
       email: user.email,
-      subject: "verify your account",
+      subject: "Verify your account",
       html: verifyEmailTemplate({ firstName: user.firstName, link }),
     };
 
-    // await sendMail(data);
-    // await sendEmailUsingSMTPExpress(data);
-    await sendEmailUsingNodemailer(data);
+    await sendMail(data);
 
     res.status(200).json(user);
   } catch (error: any) {
@@ -123,7 +113,7 @@ const logIn: RequestHandler<unknown, unknown, loginUser, unknown> = async (
     if (!user.verified) {
       //   // send a link to verify email
       const token = createToken(user.id);
-      const link = `${url}/create/verify-email?token=${token}`;
+      const link = `${FRONTEND_URL}/create/verify-email?token=${token}`;
 
       const data = {
         email: user.email,
@@ -131,9 +121,16 @@ const logIn: RequestHandler<unknown, unknown, loginUser, unknown> = async (
         html: verifyEmailTemplate({ firstName: user.firstName, link }),
       };
 
-      // await sendMail(data);
-      // await sendEmailUsingSMTPExpress(data)
-      await sendEmailUsingNodemailer(data);
+      await sendMail(data);
+
+      // TESTING(TO BE DELETED LATER)
+      const html = await render(React.createElement(EmailReminder));
+      const data2 = {
+        email: "muhyideen5110@gmail.com",
+        subject: "Testing Template",
+        html,
+      };
+      await sendMail(data2);
 
       throw Error("Email is not verified!");
     }
@@ -266,7 +263,7 @@ const sendPasswordLink: RequestHandler<
     }
 
     const token = createToken(user.id);
-    const link = `${url}/create/reset-password?token=${token}`;
+    const link = `${FRONTEND_URL}/create/reset-password?token=${token}`;
 
     const data = {
       email: user.email,
@@ -274,9 +271,7 @@ const sendPasswordLink: RequestHandler<
       html: resetPasswordEmailTemplate({ firstName: user.firstName, link }),
     };
 
-    // await sendMail(data);
-    // await sendEmailUsingSMTPExpress(data);
-    await sendEmailUsingNodemailer(data);
+    await sendMail(data);
 
     res.status(200).json("link sent successfully");
   } catch (error: any) {

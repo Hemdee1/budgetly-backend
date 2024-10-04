@@ -12,15 +12,9 @@ import { getRates } from "./rate/controller";
 
 const app = express();
 
-const origin =
-  process.env.NODE_ENV === "production"
-    ? "https://budgetease-azure.vercel.app"
-    : "http://localhost:3000";
+export const FRONTEND_URL = process.env.FRONTEND_URL;
 
-// const origin =
-//   process.env.NODE_ENV === "production"
-//     ? "https://mute-pies-flimsy-agreement-production.pipeops.app"
-//     : "http://localhost:3000";
+const origin = FRONTEND_URL;
 
 // middlewares
 app.use(
@@ -57,9 +51,7 @@ app.use(
 );
 
 app.get("/", (req, res) => {
-  res
-    .status(200)
-    .json({ message: "Welecome to BudgetEase Backend API Service" });
+  res.status(200).json({ message: "Welecome to Budgetly Backend API Service" });
 });
 
 app.use("/user", userRoutes);
