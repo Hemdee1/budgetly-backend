@@ -8,9 +8,6 @@ import sendMail from "../utils/emailSender";
 import { cloudinaryUploadImage } from "../utils/imageUploader";
 import resetPasswordEmailTemplate from "../utils/templates/resetPassword";
 import { FRONTEND_URL } from "../app";
-import { render } from "@react-email/render";
-import EmailReminder from "../../emails/email-reminder";
-import React from "react";
 
 const prisma = new PrismaClient();
 
@@ -122,15 +119,6 @@ const logIn: RequestHandler<unknown, unknown, loginUser, unknown> = async (
       };
 
       await sendMail(data);
-
-      // TESTING(TO BE DELETED LATER)
-      const html = await render(React.createElement(EmailReminder));
-      const data2 = {
-        email: "muhyideen5110@gmail.com",
-        subject: "Testing Template",
-        html,
-      };
-      await sendMail(data2);
 
       throw Error("Email is not verified!");
     }

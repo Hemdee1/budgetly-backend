@@ -1,6 +1,10 @@
 import { RequestHandler } from "express";
 import { budget } from "../utils/types";
 import { PrismaClient } from "@prisma/client";
+import sendMail from "../utils/emailSender";
+import { render } from "@react-email/render";
+import EmailReminder from "../../emails/email-reminder";
+import React from "react";
 
 const prisma = new PrismaClient();
 export const createBudget: RequestHandler<
@@ -48,6 +52,9 @@ export const createBudget: RequestHandler<
         monthlyIncome,
         defaultCurrency,
       },
+      include: {
+        user: true,
+      },
     });
 
     // create categories
@@ -69,6 +76,15 @@ export const createBudget: RequestHandler<
         budgetId: budget.id,
       },
     });
+
+    // SEND EMAIL TEMPLATE
+    const html = await render(React.createElement(EmailReminder));
+    const data = {
+      email: budget.user.email,
+      subject: "Income Recorded Notification",
+      html,
+    };
+    await sendMail(data);
 
     if (user) {
       return res.redirect("/user/autologin");

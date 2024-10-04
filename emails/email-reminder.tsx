@@ -43,44 +43,53 @@ type daysType = {
 }[];
 
 const days = [
-  {
-    day: "M",
-    status: "active",
-  },
-  {
-    day: "T",
-    status: "inactive",
-  },
-  {
-    day: "W",
-    status: "active",
-  },
-  {
-    day: "Th",
-    status: "present",
-  },
-  {
-    day: "F",
-    status: "blank",
-  },
-  {
-    day: "S",
-    status: "blank",
-  },
-  {
-    day: "Su",
-    status: "blank",
-  },
+  { day: "M", status: "blank" },
+  { day: "T", status: "blank" },
+  { day: "W", status: "blank" },
+  { day: "Th", status: "blank" },
+  { day: "F", status: "blank" },
+  { day: "S", status: "blank" },
+  { day: "Su", status: "blank" },
 ] as daysType;
+
+function setDayStatus(days: daysType) {
+  // Map day names to indices, with "Su" as the last day of the week
+  const dayIndexMap = { M: 0, T: 1, W: 2, Th: 3, F: 4, S: 5, Su: 6 };
+
+  // Get today's index in the modified week format (Sunday is the last day)
+  const today = new Date();
+  const todayIndex = (today.getDay() + 6) % 7; // Adjusting Sunday (0) to be 6
+
+  return days.map((day) => {
+    // @ts-ignore
+    const dayIndex = dayIndexMap[day.day];
+    let status = "blank"; // Default status
+
+    if (dayIndex < todayIndex) {
+      status = "inactive"; // Day has passed
+    } else if (dayIndex === todayIndex) {
+      status = "active"; // Current day
+    }
+
+    return { ...day, status };
+  });
+}
+
+// Example usage
+const updatedDays = setDayStatus(days);
+
+function getDaysInCurrentMonth() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1; // Adding 1 because months are zero-based
+  return new Date(year, month, 0).getDate();
+}
 
 const EmailReminder = () => {
   return (
     <Tailwind config={config}>
       <Html>
-        <Head>
-          <title>Printato Order Received</title>
-        </Head>
-        <Preview>This is a preview</Preview>
+        <Preview>Income Record</Preview>
 
         <Body className="font-sans bg-white">
           <Container className="px-5 py-10">
@@ -109,14 +118,15 @@ const EmailReminder = () => {
                       Your monthly streaks
                     </Heading>
                     <Heading className="my-0 text-xl font-semibold">
-                      <Heading className="text-[32px] inline">20 </Heading>/ 31
+                      <Heading className="text-[32px] inline">1 </Heading>/{" "}
+                      {getDaysInCurrentMonth()}
                     </Heading>
                   </Column>
                 </Row>
               </Container>
               <Container className="w-full h-[120px] rounded-b-2xl border-b border-[#F0F2F5] bg-[#F0F2F5] py-6 px-12">
                 <Row>
-                  {days.map((data, index) => (
+                  {updatedDays.map((data, index) => (
                     <Column key={index} className="w-8">
                       <Heading className="text-base font-semibold text-center">
                         {data.day}
@@ -147,7 +157,7 @@ const EmailReminder = () => {
             </Link> */}
 
             <Link
-              href="hello"
+              href="https://www.budgetly.me/dashboard"
               className="w-[250px] h-[60px] mx-auto mt-16 bg-[#0257EF] text-white rounded-lg font-bold text-base text-center leading-[60px] block"
             >
               Record My Money
@@ -158,14 +168,20 @@ const EmailReminder = () => {
 
               {/* Social Icons Section  */}
               <Container className="mt-4 text-end">
-                <Link href="hello" className="inline-block">
+                <Link
+                  href="https://x.com/trybudgetly?t=RelQT0f8CMLfz_hvbK3kyA&s=08"
+                  className="inline-block"
+                >
                   <Img
                     src={images.twitterIcon}
                     alt="Twitter"
                     className="inline-block align-middle"
                   />
                 </Link>
-                <Link href="hello" className="inline-block ml-7">
+                <Link
+                  href="https://www.instagram.com/trybudgetly?igsh=ZGJiYjJwcHNxYW5i"
+                  className="inline-block ml-7"
+                >
                   <Img
                     src={images.instagramIcon}
                     alt="Instagram"
@@ -183,7 +199,7 @@ const EmailReminder = () => {
               {/* Unsubscribe Link Section  */}
               <Container className="mt-2 text-center">
                 <Link
-                  href="hello"
+                  // href=""
                   className="text-[#344054] text-sm font-semibold underline"
                 >
                   Unsubscribe
