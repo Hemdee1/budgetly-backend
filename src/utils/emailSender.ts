@@ -8,9 +8,16 @@ type UserData = {
   html: string;
 };
 
+const from =
+  process.env.NODE_ENV === "production"
+    ? "Budgetly <email@hello.budgetly.me>"
+    : "Acme <onboarding@resend.dev>";
+
+// const from = "Budgetly <email@hello.budgetly.me>";
+
 const sendMail = async ({ email, html, subject }: UserData) => {
   const { data, error } = await resend.emails.send({
-    from: "Acme <onboarding@resend.dev>",
+    from,
     to: [email],
     subject,
     html,
